@@ -3,7 +3,7 @@ description: Query DOT/FMCSA trucking regulations (49 CFR Parts 350-399, Hazardo
 
 Tools:
 - lookup_dot_standard: Search 49 CFR standards by topic, keyword, or section number
-- get_hos_rules: Hours of Service rules for property, passenger, and hazmat carriers
+- get_hos_rules: Hours of Service requirements for property, passenger, and hazmat carriers
 - get_violation_info: FMCSA violation codes with severity weights and descriptions
 - get_dot_penalties: Current DOT penalty amounts by violation category
 - get_hazmat_info: Hazmat classifications, labeling, placarding, and training requirements
@@ -14,6 +14,7 @@ Data: 23 penalty categories, 11 HOS rules, 7 CSA BASICs, 30+ violation codes, al
 Use cases: Fleet management apps, trucking compliance software, ELD vendors, CSA score monitoring tools, hazmat transport software.
 
 *For informational purposes only. Not legal advice.*
+
 startCommand:
   type: stdio
   configSchema:

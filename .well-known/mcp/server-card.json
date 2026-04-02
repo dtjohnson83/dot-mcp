@@ -1,0 +1,45 @@
+{
+  "name": "DOT/FMCSA Compliance",
+  "description": "MCP server that makes DOT/FMCSA trucking regulations queryable by AI agents. Covers 49 CFR Parts 350-399 (FMCSA), Hazardous Materials (49 CFR 100-185), Hours of Service, and CSA BASIC categories.",
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "lookup_dot_standard",
+      "description": "Search 49 CFR standards by topic, keyword, or section number"
+    },
+    {
+      "name": "get_hos_rules",
+      "description": "Hours of Service rules for property, passenger, and hazmat carriers"
+    },
+    {
+      "name": "get_violation_info",
+      "description": "FMCSA violation codes, severity weights, BASIC categories"
+    },
+    {
+      "name": "get_dot_penalties",
+      "description": "Current DOT penalty amounts by violation category"
+    },
+    {
+      "name": "get_hazmat_info",
+      "description": "Hazmat classifications, labeling, placarding, training requirements"
+    },
+    {
+      "name": "check_csa_basic",
+      "description": "CSA BASIC categories, intervention thresholds, severity ratings"
+    }
+  ],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "SUPABASE_URL": {
+        "type": "string",
+        "description": "Supabase project URL"
+      },
+      "SUPABASE_ANON_KEY": {
+        "type": "string",
+        "description": "Supabase anonymous (public) key"
+      }
+    },
+    "required": ["SUPABASE_URL", "SUPABASE_ANON_KEY"]
+  }
+}
