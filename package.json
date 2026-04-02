@@ -1,0 +1,36 @@
+{
+  "name": "dot-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for DOT/FMCSA compliance - 49 CFR Parts 350-399, Hazmat, HOS, CSA",
+  "type": "module",
+  "main": "dist-server/index.js",
+  "bin": {
+    "dot-mcp-server": "dist-server/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.server.json",
+    "start": "node dist-server/index.js",
+    "dev": "tsx src/index.ts",
+    "ingest": "tsx scripts/ingest-standards.ts",
+    "generate-summaries": "tsx scripts/generate-summaries.ts",
+    "seed-penalties": "tsx scripts/seed-penalties.ts",
+    "seed-hos": "tsx scripts/seed-hos.ts",
+    "seed-hazmat": "tsx scripts/seed-hazmat.ts",
+    "validate": "tsx scripts/validate-data.ts",
+    "setup-db": "tsx scripts/setup-db.ts"
+  },
+  "keywords": ["dot", "fmcs", "trucking", "compliance", "mcp", "hazmat", "hos"],
+  "author": "DANZUS Holdings LLC",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@supabase/supabase-js": "^2.101.0",
+    "dotenv": "^17.3.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
