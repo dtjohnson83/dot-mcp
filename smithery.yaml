@@ -1,20 +1,14 @@
 name: DOT/FMCSA Compliance MCP
-description: Query DOT/FMCSA trucking regulations (49 CFR Parts 350-399, Hazardous Materials) with plain-English summaries. Built for AI agents, fleet management software, and trucking compliance tools.
-
-Tools:
+description: Query DOT/FMCSA trucking regulations including 49 CFR Parts 350-399, Hours of Service rules, Hazardous Materials regulations, CSA BASIC categories, and DOT penalty amounts. Built for trucking compliance software and AI agents.
+tools:
 - lookup_dot_standard: Search 49 CFR standards by topic, keyword, or section number
-- get_hos_rules: Hours of Service requirements for property, passenger, and hazmat carriers
-- get_violation_info: FMCSA violation codes with severity weights and descriptions
+- get_hos_rules: Hours of Service rules for property, passenger, and hazmat carriers
+- get_violation_info: FMCSA violation codes, severity weights, BASIC categories
 - get_dot_penalties: Current DOT penalty amounts by violation category
-- get_hazmat_info: Hazmat classifications, labeling, placarding, and training requirements
-- check_csa_basic: CSA BASIC categories, intervention thresholds, and severity ratings
-
-Data: 23 penalty categories, 11 HOS rules, 7 CSA BASICs, 30+ violation codes, all 9 hazmat classes.
-
-Use cases: Fleet management apps, trucking compliance software, ELD vendors, CSA score monitoring tools, hazmat transport software.
-
-*For informational purposes only. Not legal advice.*
-
+- get_hazmat_info: Hazmat classifications, labeling, placarding, training requirements
+- check_csa_basic: CSA BASIC categories, intervention thresholds, severity ratings
+data: Covers 49 CFR Parts 350-399 (FMCSA), Hazardous Materials (49 CFR 100-185), Hours of Service rules, and CSA BASIC score categories.
+useCases: trucking compliance software, fleet management apps, DOT safety chatbots, trucking company compliance tools
 startCommand:
   type: stdio
   configSchema:
