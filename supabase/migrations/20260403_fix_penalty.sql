@@ -1,0 +1,1 @@
+ALTER TABLE dot_penalty_schedule ADD CONSTRAINT dot_penalty_schedule_violation_category_key UNIQUE (violation_category);

@@ -17,9 +17,18 @@
     "seed-hos": "tsx scripts/seed-hos.ts",
     "seed-hazmat": "tsx scripts/seed-hazmat.ts",
     "validate": "tsx scripts/validate-data.ts",
-    "setup-db": "tsx scripts/setup-db.ts"
+    "setup-db": "tsx scripts/setup-db.ts",
+    "seed-csa": "tsx scripts/seed-csa.ts"
   },
-  "keywords": ["dot", "fmcs", "trucking", "compliance", "mcp", "hazmat", "hos"],
+  "keywords": [
+    "dot",
+    "fmcs",
+    "trucking",
+    "compliance",
+    "mcp",
+    "hazmat",
+    "hos"
+  ],
   "author": "DANZUS Holdings LLC",
   "license": "MIT",
   "dependencies": {
