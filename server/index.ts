@@ -25,12 +25,12 @@ dotenv.config();
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing SUPABASE_URL or SUPABASE_ANON_KEY");
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Note: Smithery configSchema requires SUPABASE_URL and SUPABASE_ANON_KEY.
+// The server will fail at runtime if these are missing when tools are called.
+const supabase = createClient(
+  supabaseUrl || "https://placeholder.supabase.co",
+  supabaseKey || "placeholder-key"
+);
 
 const DISCLAIMER = "\n\n---\n*This information is for reference only and does not constitute legal advice. Always verify requirements with official FMCSA/DOT sources at fmcsa.dot.gov. Regulations may have been amended since this data was last updated.*";
 
