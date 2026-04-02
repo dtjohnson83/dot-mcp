@@ -509,3 +509,106 @@ main().catch((err) => {
   console.error("Server failed to start:", err);
   process.exit(1);
 });
+
+// ---- Smithery sandbox server (for scanning without credentials) ----
+export function createSandboxServer() {
+  const sandboxSupabase = createClient(
+    "https://placeholder.supabase.co",
+    "placeholder-key"
+  );
+
+  const sandboxServer = new McpServer({
+    name: "dot-compliance",
+    version: "1.0.0",
+  });
+
+  async function sandboxTrackUsage(toolName: string, query: string, responseTimeMs: number) {
+    try {
+      await sandboxSupabase.from("api_usage").insert({
+        tool_name: toolName,
+        query: query.slice(0, 500),
+        response_time_ms: responseTimeMs
+      });
+    } catch { /* non-critical */ }
+  }
+
+  // Re-register all tools with sandboxSupabase
+  sandboxServer.tool("lookup_dot_standard", "Search DOT/FMCSA safety standards by topic, keyword, or section number (e.g., 'hours of service', '395.3', 'driver qualification', 'electronic logging device', 'pre-trip inspection'). Returns plain-English summaries with official citations. Covers 49 CFR Parts 350-399 and 100-185.", { query: z.string().describe("Search term: topic, keyword, or 49 CFR section number"), scope: z.enum(["fmcs","hos","hazmat","csa","driver","vehicle","accident","drug_alcohol","all"]).optional().default("all").describe("Filter by regulation scope") }, async ({ query, scope }) => {
+    const start = Date.now();
+    const isSectionNumber = /^\d{3}\.?\d*/.test(query.trim());
+    let results: any[] = [];
+    if (isSectionNumber) { const cleanNum = query.trim().replace(/^(\d{3})\.(\d)/, "$1.$2"); const { data, error } = await sandboxSupabase.from("dot_standards").select("standard_number, title, part, scope, plain_summary, key_requirements, violation_codes, ecfr_url").like("standard_number", `${cleanNum}%`).limit(5); if (!error && data && data.length > 0) results = data; }
+    if (results.length === 0) { const { data, error } = await sandboxSupabase.rpc("search_dot_standards", { search_query: query, scope_filter: scope !== "all" ? scope : null, result_limit: 5 }); if (!error && data) results = data; }
+    if (results.length === 0) return { content: [{ type: "text", text: `No standards found for "${query}". Try a different search term or browse by category.` + DISCLAIMER }] };
+    let response = `## Search Results for "${query}"\n\n`;
+    for (const r of results) { response += `### ${r.standard_number}: ${r.title}\n${r.plain_summary}\n**Scope:** ${r.scope}\n`; if (r.key_requirements) response += `**Key Requirements:** ${r.key_requirements}\n`; if (r.violation_codes) response += `**Violation Codes:** ${r.violation_codes}\n`; if (r.ecfr_url) response += `**Source:** ${r.ecfr_url}\n`; response += "\n"; }
+    await sandboxTrackUsage("lookup_dot_standard", query, Date.now() - start);
+    return { content: [{ type: "text", text: response + DISCLAIMER }] };
+  });
+
+  sandboxServer.tool("get_hos_rules", "Get Hours of Service (HOS) requirements for trucking operations. Covers property-carrying (trucking) and passenger-carrying vehicles, including driving time limits, duty time limits, off-duty requirements, and sleeper berth provisions.", { carrier_type: z.string().optional().default("all").describe("Type of carrier operation"), rule_type: z.string().optional().default("all").describe("Specific type of HOS rule") }, async ({ carrier_type, rule_type }) => {
+    const start = Date.now();
+    let query = sandboxSupabase.from("hos_rules").select("*");
+    if (carrier_type !== "all") query = query.eq("category", carrier_type);
+    if (rule_type !== "all") query = query.like("category", `%${rule_type}%`);
+    const { data, error } = await query.limit(10);
+    await sandboxTrackUsage("get_hos_rules", `${carrier_type} ${rule_type}`, Date.now() - start);
+    if (error || !data || data.length === 0) return { content: [{ type: "text", text: "No HOS rules found for the specified criteria." + DISCLAIMER }] };
+    let response = "## Hours of Service (HOS) Requirements\n\n";
+    for (const r of data) { response += `### ${r.rule_name}\n${r.description}\n`; if (r.max_duration) response += `**Max Duration:** ${r.max_duration}\n`; if (r. citation) response += `**Citation:** ${r.citation}\n`; response += "\n"; }
+    return { content: [{ type: "text", text: response + DISCLAIMER }] };
+  });
+
+  sandboxServer.tool("get_violation_info", "Look up FMCSA violation codes by code number or keyword. Returns violation descriptions, severity weights (1-10), BASIC area, and whether the violation is acute or critical.", { code: z.string().optional().describe("Violation code (e.g., '395.3A', '395.8')"), basic_area: z.string().optional().describe("CSA BASIC area (e.g., 'HOS', 'DRF', 'BDD')"), severity_min: z.number().optional().describe("Minimum severity weight (1-10)") }, async ({ code, basic_area, severity_min }) => {
+    const start = Date.now();
+    let query = sandboxSupabase.from("violation_codes").select("*").limit(20);
+    if (code) query = query.like("violation_code", `%${code}%`);
+    if (basic_area) query = query.eq("basic_area", basic_area);
+    if (severity_min) query = query.gte("severity_weight", severity_min);
+    const { data, error } = await query;
+    await sandboxTrackUsage("get_violation_info", `${code || ""} ${basic_area || ""}`, Date.now() - start);
+    if (error || !data || data.length === 0) return { content: [{ type: "text", text: "No violations found for the specified criteria." + DISCLAIMER }] };
+    let response = "## FMCSA Violation Codes\n\n";
+    for (const v of data) { response += `### ${v.violation_code}: ${v.description}\n**Severity:** ${v.severity_weight}/10 | **BASIC:** ${v.basic_area}\n`; if (v.acute_indicator === "A") response += "⚠️ **Acute Violation**\n"; if (v.critical_indicator === "C") response += "🚨 **Critical Indicator**\n"; if (v.citation) response += `**Citation:** ${v.citation}\n`; response += "\n"; }
+    return { content: [{ type: "text", text: response + DISCLAIMER }] };
+  });
+
+  sandboxServer.tool("get_dot_penalties", "Get current DOT/FMCSA penalty amounts by violation category. Covers out-of-service orders, HOS violations, ELD violations, hazmat violations, and more.", { category: z.string().optional().default("all").describe("Violation category (e.g., 'hos', 'eld', 'hazmat', 'out_of_service')") }, async ({ category }) => {
+    const start = Date.now();
+    let query = sandboxSupabase.from("dot_penalties").select("*");
+    if (category !== "all") query = query.eq("category", category);
+    const { data, error } = await query.limit(20);
+    await sandboxTrackUsage("get_dot_penalties", category || "all", Date.now() - start);
+    if (error || !data || data.length === 0) return { content: [{ type: "text", text: "No penalties found for the specified category." + DISCLAIMER }] };
+    let response = "## DOT Penalty Amounts\n\n";
+    for (const p of data) { response += `### ${p.violation_category}\n**Minimum:** $${p.min_penalty} | **Maximum:** $${p.max_penalty} (${p.unit_type})\n`; if (p.statutory_limit) response += `**Statutory Limit:** ${p.statutory_limit}\n`; if (p.notes) response += `**Notes:** ${p.notes}\n`; if (p.citation) response += `**Citation:** ${p.citation}\n`; if (p.effective_date) response += `**Effective:** ${p.effective_date}\n`; response += "\n"; }
+    return { content: [{ type: "text", text: response + DISCLAIMER }] };
+  });
+
+  sandboxServer.tool("get_hazmat_info", "Look up hazardous materials (hazmat) classifications, shipping requirements, and regulations. Covers all 9 DOT hazmat classes, packing groups, marking/labeling/placarding requirements, and training obligations.", { class_number: z.string().optional().describe("Hazmat class (1-9)"), packing_group: z.string().optional().describe("Packing group (I, II, III)") }, async ({ class_number, packing_group }) => {
+    const start = Date.now();
+    let query = sandboxSupabase.from("hazmat_classifications").select("*");
+    if (class_number) query = query.like("class_number", `${class_number}%`);
+    if (packing_group) query = query.eq("packing_group", packing_group);
+    const { data, error } = await query.limit(10);
+    await sandboxTrackUsage("get_hazmat_info", `${class_number || ""} ${packing_group || ""}`, Date.now() - start);
+    if (error || !data || data.length === 0) return { content: [{ type: "text", text: "No hazmat information found for the specified criteria." + DISCLAIMER }] };
+    let response = "## Hazmat Classifications & Requirements\n\n";
+    for (const h of data) { response += `### Class ${h.class_number}: ${h.class_name}\n${h.description}\n`; if (h.division) response += `**Division:** ${h.division}\n`; if (h.packing_group) response += `**Packing Group:** ${h.packing_group}\n`; if (h.key_requirements) response += `**Key Requirements:** ${h.key_requirements}\n`; if (h.marking_requirements) response += `**Marking:** ${h.marking_requirements}\n`; if (h.placard_requirements) response += `**Placarding:** ${h.placard_requirements}\n`; if (h.training_requirements) response += `**Training:** ${h.training_requirements}\n`; if (h.citation) response += `**Citation:** ${h.citation}\n`; response += "\n"; }
+    return { content: [{ type: "text", text: response + DISCLAIMER }] };
+  });
+
+  sandboxServer.tool("check_csa_basic", "Get information about CSA (Compliance, Safety, Accountability) BASIC categories. Shows the 7 BASICs, their intervention thresholds, severity weights, and what behaviors they measure.", { basic_code: z.string().optional().describe("BASIC code: HOS, DRF, BDD, VEH, MAC, SSR, or VEO") }, async ({ basic_code }) => {
+    const start = Date.now();
+    let query = sandboxSupabase.from("csa_categories").select("*");
+    if (basic_code) query = query.eq("basic_code", basic_code.toUpperCase());
+    const { data, error } = await query;
+    await sandboxTrackUsage("check_csa_basic", basic_code || "all", Date.now() - start);
+    if (error || !data || data.length === 0) return { content: [{ type: "text", text: `CSA BASIC "${basic_code || 'all'}" not found. The 7 CSA BASICs are: HOS, DRF, BDD, VEH, MAC, SSR, VEO.` + DISCLAIMER }] };
+    let response = "## CSA BASIC Categories\n\n";
+    for (const b of data) { response += `### ${b.basic_code}: ${b.basic_name}\n${b.description}\n`; if (b.severity_ratings) response += `**Severity Ratings:** ${b.severity_ratings}\n`; if (b.intervention_thresholds) response += `**Intervention Thresholds:** ${b.intervention_thresholds}\n`; if (b.carrier_type) response += `**Applies to:** ${b.carrier_type}\n`; if (b.citation) response += `**Citation:** ${b.citation}\n`; response += "\n"; }
+    return { content: [{ type: "text", text: response + DISCLAIMER }] };
+  });
+
+  return sandboxServer;
+}

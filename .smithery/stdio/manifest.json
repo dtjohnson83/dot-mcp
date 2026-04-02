@@ -1,0 +1,164 @@
+{
+  "payload": {
+    "type": "stdio",
+    "runtime": "node",
+    "hasAuthAdapter": false,
+    "serverCard": {
+      "serverInfo": {
+        "name": "dot-compliance",
+        "version": "1.0.0"
+      },
+      "tools": [
+        {
+          "name": "lookup_dot_standard",
+          "description": "Search DOT/FMCSA safety standards by topic, keyword, or section number (e.g., 'hours of service', '395.3', 'driver qualification', 'electronic logging device', 'pre-trip inspection'). Returns plain-English summaries with official citations. Covers 49 CFR Parts 350-399 and 100-185.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "Search term: topic, keyword, or 49 CFR section number"
+              },
+              "scope": {
+                "default": "all",
+                "description": "Filter by regulation scope",
+                "type": "string",
+                "enum": [
+                  "fmcs",
+                  "hos",
+                  "hazmat",
+                  "csa",
+                  "driver",
+                  "vehicle",
+                  "accident",
+                  "drug_alcohol",
+                  "all"
+                ]
+              }
+            },
+            "required": [
+              "query"
+            ],
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "get_hos_rules",
+          "description": "Get Hours of Service (HOS) requirements for trucking operations. Covers property-carrying (trucking) and passenger-carrying vehicles, including driving time limits, duty time limits, off-duty requirements, and sleeper berth provisions.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "carrier_type": {
+                "default": "all",
+                "description": "Type of carrier operation",
+                "type": "string"
+              },
+              "rule_type": {
+                "default": "all",
+                "description": "Specific type of HOS rule",
+                "type": "string"
+              }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "get_violation_info",
+          "description": "Look up FMCSA violation codes by code number or keyword. Returns violation descriptions, severity weights (1-10), BASIC area, and whether the violation is acute or critical.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "description": "Violation code (e.g., '395.3A', '395.8')",
+                "type": "string"
+              },
+              "basic_area": {
+                "description": "CSA BASIC area (e.g., 'HOS', 'DRF', 'BDD')",
+                "type": "string"
+              },
+              "severity_min": {
+                "description": "Minimum severity weight (1-10)",
+                "type": "number"
+              }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "get_dot_penalties",
+          "description": "Get current DOT/FMCSA penalty amounts by violation category. Covers out-of-service orders, HOS violations, ELD violations, hazmat violations, and more.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "default": "all",
+                "description": "Violation category (e.g., 'hos', 'eld', 'hazmat', 'out_of_service')",
+                "type": "string"
+              }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "get_hazmat_info",
+          "description": "Look up hazardous materials (hazmat) classifications, shipping requirements, and regulations. Covers all 9 DOT hazmat classes, packing groups, marking/labeling/placarding requirements, and training obligations.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "class_number": {
+                "description": "Hazmat class (1-9)",
+                "type": "string"
+              },
+              "packing_group": {
+                "description": "Packing group (I, II, III)",
+                "type": "string"
+              }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        },
+        {
+          "name": "check_csa_basic",
+          "description": "Get information about CSA (Compliance, Safety, Accountability) BASIC categories. Shows the 7 BASICs, their intervention thresholds, severity weights, and what behaviors they measure.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "basic_code": {
+                "description": "BASIC code: HOS, DRF, BDD, VEH, MAC, SSR, or VEO",
+                "type": "string"
+              }
+            },
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          },
+          "execution": {
+            "taskSupport": "forbidden"
+          }
+        }
+      ],
+      "resources": [],
+      "prompts": []
+    },
+    "source": {
+      "commit": "25c60552153c1f411c703a8b630dc38e11954cfd",
+      "branch": "main"
+    }
+  },
+  "artifacts": {
+    "bundle": "server.mcpb"
+  }
+}

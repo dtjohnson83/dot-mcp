@@ -1,0 +1,56 @@
+{
+  "manifest_version": "0.2",
+  "name": "dot-compliance",
+  "version": "1.0.0",
+  "description": "MCP Server",
+  "author": {
+    "name": "Smithery"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "index.cjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/index.cjs"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "lookup_dot_standard",
+      "description": "Search DOT/FMCSA safety standards by topic, keyword, or section number (e.g., 'hours of service', '395.3', 'driver qualification', 'electronic logging device', 'pre-trip inspection'). Returns plain-English summaries with official citations. Covers 49 CFR Parts 350-399 and 100-185."
+    },
+    {
+      "name": "get_hos_rules",
+      "description": "Get Hours of Service (HOS) requirements for trucking operations. Covers property-carrying (trucking) and passenger-carrying vehicles, including driving time limits, duty time limits, off-duty requirements, and sleeper berth provisions."
+    },
+    {
+      "name": "get_violation_info",
+      "description": "Look up FMCSA violation codes by code number or keyword. Returns violation descriptions, severity weights (1-10), BASIC area, and whether the violation is acute or critical."
+    },
+    {
+      "name": "get_dot_penalties",
+      "description": "Get current DOT/FMCSA penalty amounts by violation category. Covers out-of-service orders, HOS violations, ELD violations, hazmat violations, and more."
+    },
+    {
+      "name": "get_hazmat_info",
+      "description": "Look up hazardous materials (hazmat) classifications, shipping requirements, and regulations. Covers all 9 DOT hazmat classes, packing groups, marking/labeling/placarding requirements, and training obligations."
+    },
+    {
+      "name": "check_csa_basic",
+      "description": "Get information about CSA (Compliance, Safety, Accountability) BASIC categories. Shows the 7 BASICs, their intervention thresholds, severity weights, and what behaviors they measure."
+    }
+  ],
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
