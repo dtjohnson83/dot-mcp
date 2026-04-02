@@ -1,7 +1,8 @@
 {
   "serverInfo": {
     "name": "dot-compliance",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "icon": "https://dot-mcp.vercel.app/logo.jpeg"
   },
   "tools": [
     {
