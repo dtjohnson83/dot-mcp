@@ -1,5 +1,17 @@
 name: DOT/FMCSA Compliance MCP
 description: Query DOT/FMCSA trucking regulations including 49 CFR Parts 350-399, Hours of Service rules, Hazardous Materials regulations, CSA BASIC categories, and DOT penalty amounts. Built for trucking compliance software and AI agents.
+configSchema:
+  type: object
+  properties:
+    SUPABASE_URL:
+      type: string
+      description: "Supabase project URL"
+    SUPABASE_ANON_KEY:
+      type: string
+      description: "Supabase anonymous key"
+  required:
+    - SUPABASE_URL
+    - SUPABASE_ANON_KEY
 tools:
 - lookup_dot_standard: Search 49 CFR standards by topic, keyword, or section number
 - get_hos_rules: Hours of Service rules for property, passenger, and hazmat carriers
@@ -11,18 +23,6 @@ data: Covers 49 CFR Parts 350-399 (FMCSA), Hazardous Materials (49 CFR 100-185),
 useCases: trucking compliance software, fleet management apps, DOT safety chatbots, trucking company compliance tools
 startCommand:
   type: stdio
-  configSchema:
-    type: object
-    properties:
-      SUPABASE_URL:
-        type: string
-        description: "Supabase project URL"
-      SUPABASE_ANON_KEY:
-        type: string
-        description: "Supabase anonymous key"
-    required:
-      - SUPABASE_URL
-      - SUPABASE_ANON_KEY
   commandFunction: |-
     (config) => ({
       command: "node",
