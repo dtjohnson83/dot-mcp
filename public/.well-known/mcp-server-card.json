@@ -1,0 +1,75 @@
+{
+  "serverInfo": {
+    "name": "dot-compliance",
+    "version": "1.0.0",
+    "icon": "https://dot-mcp.vercel.app/logo.jpeg"
+  },
+  "tools": [
+    {
+      "name": "lookup_dot_standard",
+      "description": "Search 49 CFR standards by topic, keyword, or section number",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "scope": { "type": "string" }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "get_hos_rules",
+      "description": "Hours of Service requirements for trucking operations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "carrier_type": { "type": "string" },
+          "rule_type": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "get_violation_info",
+      "description": "FMCSA violation codes with severity weights",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "basic_area": { "type": "string" },
+          "severity_min": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "get_dot_penalties",
+      "description": "Current DOT penalty amounts by violation category",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "get_hazmat_info",
+      "description": "Hazmat classifications and requirements",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "class_number": { "type": "string" },
+          "packing_group": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "check_csa_basic",
+      "description": "CSA BASIC categories and intervention thresholds",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "basic_code": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

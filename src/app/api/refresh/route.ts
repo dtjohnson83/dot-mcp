@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { SupabaseClient, createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 // ---------------------------------------------------------------------------
@@ -76,25 +76,25 @@ const HAZMAT_CLASSES = [
 // Seed Functions
 // ---------------------------------------------------------------------------
 
-async function seedPenalties(supabase: ReturnType<typeof createClient>) {
+async function seedPenalties(supabase: SupabaseClient) {
   await supabase.from("dot_penalty_schedule").delete().neq("violation_category", "placeholder");
   const { error } = await supabase.from("dot_penalty_schedule").insert(PENALTIES);
   if (error) throw new Error(`seed-penalties failed: ${error.message}`);
 }
 
-async function seedHOS(supabase: ReturnType<typeof createClient>) {
+async function seedHOS(supabase: SupabaseClient) {
   await supabase.from("hos_rules").delete().neq("rule_code", "placeholder");
   const { error } = await supabase.from("hos_rules").insert(HOS_RULES);
   if (error) throw new Error(`seed-hos failed: ${error.message}`);
 }
 
-async function seedCSA(supabase: ReturnType<typeof createClient>) {
+async function seedCSA(supabase: SupabaseClient) {
   await supabase.from("csa_categories").delete().neq("basic_code", "placeholder");
   const { error: catError } = await supabase.from("csa_categories").insert(CSA_CATEGORIES);
   if (catError) throw new Error(`seed-csa (categories) failed: ${catError.message}`);
 }
 
-async function seedHazmat(supabase: ReturnType<typeof createClient>) {
+async function seedHazmat(supabase: SupabaseClient) {
   await supabase.from("hazmat_classifications").delete().neq("class_number", "placeholder");
   const { error } = await supabase.from("hazmat_classifications").insert(HAZMAT_CLASSES);
   if (error) throw new Error(`seed-hazmat failed: ${error.message}`);
@@ -144,4 +144,3 @@ export async function GET(request: Request) {
     { status: allSucceeded ? 200 : 207 }
   );
 }
-

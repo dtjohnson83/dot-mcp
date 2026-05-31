@@ -404,6 +404,16 @@ export async function POST(request: NextRequest) {
   const method = body.method;
   const params = body.params || {};
 
+  if (!method) {
+    return NextResponse.json(
+      { jsonrpc: "2.0", id, error: { code: -32600, message: "Missing method" } },
+      {
+        status: 200,
+        headers: { "Access-Control-Allow-Origin": origin, "Content-Type": "application/json" },
+      }
+    );
+  }
+
   try {
     const result = await handleMCPRequest(method, params);
     return NextResponse.json(
